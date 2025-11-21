@@ -1,18 +1,20 @@
-# --- Build stage ---
-FROM node:18 AS build
+FROM node:18
 
-WORKDIR /app
-COPY front/package*.json ./
+# Set working dir to the front app
+WORKDIR /usr/src/app/
+
+# Copy only front package files and install dependencies
+COPY /package*.json ./
+
 RUN npm install
 
-COPY front/ ./
-RUN npm run build
+# Copy front source
+COPY . .
 
-# --- Production stage ---
-FROM nginx:alpine
+EXPOSE 3001
 
-COPY --from=build /app/build /usr/share/nginx/html
+ENV HOST=0.0.0.0
+ENV BROWSER=none
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Start the React dev server (script already sets PORT=3001)
+CMD ["npm", "start"]
